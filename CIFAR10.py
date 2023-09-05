@@ -5,13 +5,10 @@ import torch.nn.functional as F
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 import time
+
 start_time = time.time()
-if torch.backends.mps.is_available():
-    mps_device = torch.device("cuda")
-    x = torch.ones(1, device=mps_device)
-    print (x)
-else:
-    print ("cuda device not found.")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 
 transform_trainingset = transforms.Compose([transforms.ToTensor(),
                                             transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)),
@@ -26,28 +23,6 @@ trainingset = torchvision.datasets.CIFAR10(root='./data', train=True, download=T
 trainloader = DataLoader(trainingset, batch_size=4, shuffle=True)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transforms.ToTensor())
 testloader = DataLoader(testset, batch_size=4, shuffle=False)
-
-# (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-# X_train = X_train.astype(np.float32) / 255.0
-# X_test = X_test.astype(np.float32) / 255.0
-
-# X_train = torch.from_numpy(X_train).to(mps_device)
-# X_test = torch.from_numpy(X_test).to(mps_device)
-# y_train = torch.from_numpy(y_train).to(mps_device)
-# y_test = torch.from_numpy(y_test).to(mps_device)
-
-# y_train = y_train.squeeze()
-# y_test = y_test.squeeze()
-# X_train = X_train.permute(0, 3, 1, 2)
-# X_test = X_test.permute(0, 3, 1, 2)
-
-# dataset = TensorDataset(X_train, y_train)
-# batch_size = 4
-# trainloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-
-# testset = TensorDataset(X_test, y_test)
-# batch_size = 4
-# testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
 
 class Net(nn.Module):
     def __init__(self):
@@ -69,18 +44,19 @@ class Net(nn.Module):
         return x
 
 
-net = Net().to(mps_device)
+net = Net().to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+
 #Training the Network
-for epoch in range(20):  
+for epoch in range(10):  
 
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         inputs, labels = data
-        inputs = inputs.to(mps_device)
-        labels = labels.to(mps_device)
+        inputs = inputs.to(device)
+        labels = labels.to(device)
         # zero the parameter gradients
         optimizer.zero_grad()
 
@@ -101,8 +77,8 @@ for epoch in range(20):
     with torch.no_grad():
         for data in testloader:
             images, labels = data
-            images = images.to(mps_device)
-            labels = labels.to(mps_device)
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
