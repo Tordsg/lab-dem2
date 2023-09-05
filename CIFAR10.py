@@ -1,20 +1,17 @@
-from sklearn.model_selection import train_test_split
 import torch
 import torchvision
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 import torch.nn as nn
-import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
-from keras.datasets import cifar10
 import time
 start_time = time.time()
 if torch.backends.mps.is_available():
-    mps_device = torch.device("mps")
+    mps_device = torch.device("cuda")
     x = torch.ones(1, device=mps_device)
     print (x)
 else:
-    print ("MPS device not found.")
+    print ("cuda device not found.")
 
 transform_trainingset = transforms.Compose([transforms.ToTensor(),
                                             transforms.Normalize((0.5,0.5,0.5),(0.5,0.5,0.5)),
