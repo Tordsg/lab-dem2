@@ -10,5 +10,5 @@
 #SBATCH --partition=vgpu
 #SBATCH --gres=gpu:1
 
-conda activate env1
+conda activate /home/Student/s4823030/miniconda3/envs/env1
 python ~/compute/lab-dem2/test.py
