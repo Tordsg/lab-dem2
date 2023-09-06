@@ -19,9 +19,9 @@ transform_testset = transforms.Compose([transforms.ToTensor(),
 
 
 trainingset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms.ToTensor())
-trainloader = DataLoader(trainingset, batch_size=4, shuffle=True)
+trainloader = DataLoader(trainingset, batch_size=32, shuffle=True)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transforms.ToTensor())
-testloader = DataLoader(testset, batch_size=4, shuffle=False)
+testloader = DataLoader(testset, batch_size=32, shuffle=False)
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -136,13 +136,13 @@ class ResNet(nn.Module):
 net = ResNet(BasicBlock, [2, 2, 2, 2]).to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(net.parameters(), lr=0.001,
+optimizer = torch.optim.SGD(net.parameters(), lr=0.005,
                       momentum=0.9, weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
+scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, T_max=200)
 
 
 #Training the Network
-for epoch in range(10):  
+for epoch in range(40):  
 
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
@@ -163,19 +163,22 @@ for epoch in range(10):
         if i % 1000 == 999:
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 1000:.3f}')
             running_loss = 0.0
-    print('Finished Training epoch ', epoch)
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for data in testloader:
-            images, labels = data
-            images = images.to(device)
-            labels = labels.to(device)
-            outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    print(correct, total)
-    print(f'Accuracy of the network on the {total} test images: {100 * correct // total} %')
+            
+    scheduler.step()
     
-    print("--- %s seconds ---" % (time.time() - start_time))
+print('Finished Training epoch ', epoch)
+correct = 0
+total = 0
+with torch.no_grad():
+    for data in testloader:
+        images, labels = data
+        images = images.to(device)
+        labels = labels.to(device)
+        outputs = net(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+print(correct, total)
+print(f'Accuracy of the network on the {total} test images: {100 * correct // total} %')
+
+print("--- %s seconds ---" % (time.time() - start_time))
