@@ -133,7 +133,7 @@ class ResNet(nn.Module):
 #         return x
 
 
-net = ResNet(BasicBlock, [2, 2, 2, 2]).to(device)
+net = ResNet(BasicBlock, [3, 4, 6, 3]).to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.005,
@@ -142,7 +142,7 @@ scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, T_max=200)
 
 
 #Training the Network
-for epoch in range(40):  
+for epoch in range(1):  
 
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
@@ -161,7 +161,8 @@ for epoch in range(40):
         # print statistics
         running_loss += loss.item()
         if i % 1000 == 999:
-            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 1000:.3f}')
+            value = running_loss / 1000
+            print(value)
             running_loss = 0.0
             
     scheduler.step()
