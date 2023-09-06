@@ -141,7 +141,7 @@ optimizer = torch.optim.SGD(net.parameters(), lr=0.005,
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.975)
 
 #Training the Network
-for epoch in range(40):  
+for epoch in range(55):  
 
     # running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
