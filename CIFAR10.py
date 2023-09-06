@@ -138,8 +138,7 @@ net = ResNet(BasicBlock, [3, 4, 6, 3]).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.005,
                       momentum=0.9, weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, T_max=200)
-
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.975)
 
 #Training the Network
 for epoch in range(40):  
@@ -179,5 +178,5 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-print(correct, total, 100 * correct // total)
+print(correct, total, 100 * correct // total + '%')
 print("--- %s seconds ---" % (time.time() - start_time))
