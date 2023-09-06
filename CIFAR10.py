@@ -142,7 +142,7 @@ scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, T_max=200)
 
 
 #Training the Network
-for epoch in range(1):  
+for epoch in range(40):  
 
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
@@ -179,7 +179,5 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-print(correct, total)
-print(f'Accuracy of the network on the {total} test images: {100 * correct // total} %')
-
+print(correct, total, 100 * correct // total)
 print("--- %s seconds ---" % (time.time() - start_time))
