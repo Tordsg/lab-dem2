@@ -143,7 +143,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.975)
 #Training the Network
 for epoch in range(40):  
 
-    running_loss = 0.0
+    # running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         inputs, labels = data
         inputs = inputs.to(device)
@@ -158,15 +158,15 @@ for epoch in range(40):
         optimizer.step()
 
         # print statistics
-        running_loss += loss.item()
-        if i % 1000 == 999:
-            value = running_loss / 1000
-            print(value)
-            running_loss = 0.0
+        # running_loss += loss.item()
+        # if i % 1000 == 999:
+        #     value = running_loss / 1000
+        #     print(value)
+        #     running_loss = 0.0
             
     scheduler.step()
     
-print('Finished Training epoch ', epoch)
+print('Finished Training epoch ', epoch + 1)
 correct = 0
 total = 0
 with torch.no_grad():
@@ -178,5 +178,5 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-print(correct, total, 100 * correct // total + '%')
+print(f'Accuracy of the network on the {total} test images: {100 * correct // total} %')
 print("--- %s seconds ---" % (time.time() - start_time))
