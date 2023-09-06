@@ -11,4 +11,4 @@
 #SBATCH --gres=gpu:1
 
 conda activate env1
-python ~/compute/lab-dem2/test.py
+~/miniconda3/envs/env1/bin/python ~/compute/lab-dem2/test.py

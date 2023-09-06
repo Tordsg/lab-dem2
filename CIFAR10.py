@@ -19,9 +19,9 @@ transform_testset = transforms.Compose([transforms.ToTensor(),
 
 
 trainingset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms.ToTensor())
-trainloader = DataLoader(trainingset, batch_size=32, shuffle=True)
+trainloader = DataLoader(trainingset, batch_size=16, shuffle=True)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transforms.ToTensor())
-testloader = DataLoader(testset, batch_size=32, shuffle=False)
+testloader = DataLoader(testset, batch_size=16, shuffle=False)
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -134,14 +134,14 @@ class ResNet(nn.Module):
 
 
 net = ResNet(BasicBlock, [3, 4, 6, 3]).to(device)
-
+epochs = 80
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.005,
                       momentum=0.9, weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.975)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=0)
 
 #Training the Network
-for epoch in range(55):  
+for epoch in range(epochs):  
 
     # running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
