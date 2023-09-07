@@ -3,7 +3,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, random_split
 import time
 
 start_time = time.time()
@@ -19,9 +19,18 @@ transform_testset = transforms.Compose([transforms.ToTensor(),
 
 
 trainingset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms.ToTensor())
-trainloader = DataLoader(trainingset, batch_size=16, shuffle=True)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transforms.ToTensor())
-testloader = DataLoader(testset, batch_size=16, shuffle=False)
+testloader = DataLoader(testset, batch_size=100, shuffle=False)
+validation_size = 5000 
+
+training_size = len(trainingset) - validation_size
+
+# Split the dataset into training and validation sets
+train_dataset, val_dataset = random_split(trainingset, [training_size, validation_size])
+
+batch_size = 128
+trainloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -113,59 +122,39 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
     
-# class Net(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
-#         self.conv2 = nn.Conv2d(32, 32, kernel_size=3, padding=1)
-#         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-#         self.fc1 = nn.Linear(2048, 120)
-#         self.fc2 = nn.Linear(120, 84)
-#         self.fc3 = nn.Linear(84, 10)
-
-#     def forward(self, x):
-#         x = self.pool(F.relu(self.conv1(x)))
-#         x = self.pool(F.relu(self.conv2(x)))
-#         x = torch.flatten(x, 1) # flatten all dimensions except batch        
-#         x = F.relu(self.fc1(x))
-#         x = F.relu(self.fc2(x))
-#         x = self.fc3(x)
-#         return x
-
 #ResNet50
 net = ResNet(Bottleneck, [3, 4, 6, 3]).to(device)
-epochs = 60
+epochs = 10
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(net.parameters(), lr=0.005,
+optimizer = torch.optim.SGD(net.parameters(), lr=0.01,
                       momentum=0.9, weight_decay=5e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
 
 #Training the Network
 for epoch in range(epochs):  
-
-    # running_loss = 0.0
+    epochtime = time.time()
     for i, data in enumerate(trainloader, 0):
         inputs, labels = data
         inputs = inputs.to(device)
         labels = labels.to(device)
-        # zero the parameter gradients
         optimizer.zero_grad()
-
-        # forward + backward + optimize
         outputs = net(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-
-        # print statistics
-        # running_loss += loss.item()
-        # if i % 1000 == 999:
-        #     value = running_loss / 1000
-        #     print(value)
-        #     running_loss = 0.0
-            
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in val_loader:
+            images, labels = data
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+    print(f'Accuracy of the network on epoch {epoch + 1}: {100 * correct // total} % in {time.time() - epochtime} seconds')        
     scheduler.step()
-    
 print('Finished Training epoch ', epoch + 1)
 correct = 0
 total = 0
