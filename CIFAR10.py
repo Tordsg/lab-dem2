@@ -128,7 +128,7 @@ epochs = 10
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.1,
                       momentum=0.9, weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.1, patience = 3, threshold = 0.001, mode = max)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.1, patience = 3, threshold = 0.001, mode = 'max', verbose = True)
 #Training the Network
 for epoch in range(epochs):  
     epochtime = time.time()
