@@ -153,7 +153,7 @@ for epoch in range(epochs):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     print(f'Accuracy of the network on epoch {epoch + 1}: {100 * correct // total} % in {time.time() - epochtime} seconds')        
-    scheduler.step()
+    scheduler.step(metrics=100 * correct // total)
 print('Finished Training epoch ', epoch + 1)
 correct = 0
 total = 0
