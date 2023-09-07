@@ -124,12 +124,11 @@ class ResNet(nn.Module):
     
 #ResNet50
 net = ResNet(Bottleneck, [3, 4, 6, 3]).to(device)
-epochs = 10
+epochs = 50
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.01,
                       momentum=0.9, weight_decay=5e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
-
 #Training the Network
 for epoch in range(epochs):  
     epochtime = time.time()
