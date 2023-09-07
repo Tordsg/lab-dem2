@@ -126,9 +126,9 @@ class ResNet(nn.Module):
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
 epochs = 10
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(net.parameters(), lr=0.01,
+optimizer = torch.optim.SGD(net.parameters(), lr=0.1,
                       momentum=0.9, weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.1, steps_per_epoch=len(trainloader), epochs=epochs)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(factor = 0.1, patience = 3, threshold = 0.001, mode = max)
 #Training the Network
 for epoch in range(epochs):  
     epochtime = time.time()
