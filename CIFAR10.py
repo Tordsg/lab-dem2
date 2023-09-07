@@ -124,7 +124,7 @@ class ResNet(nn.Module):
     
 #ResNet50
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
-epochs = 100
+epochs = 10
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.1,
                       momentum=0.9, weight_decay=5e-4)
@@ -166,5 +166,6 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
+print(correct,total)
 print(f'Accuracy of the network on the {total} test images: {100 * correct // total} %')
 print("--- %s seconds ---" % (time.time() - start_time))
