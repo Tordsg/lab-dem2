@@ -154,7 +154,7 @@ for epoch in range(epochs):
             correct += (predicted == labels).sum().item()
              
     print(f'Accuracy of the network on epoch {epoch + 1}: {100 * correct // total} % in {time.time() - epochtime} seconds')        
-    scheduler.step(metrics=100 * correct // total)
+    scheduler.step()
 torch.save(net, 'net.pth')
 print('Finished Training epoch ', epoch + 1)
 correct = 0
