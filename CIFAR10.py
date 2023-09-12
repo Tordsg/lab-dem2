@@ -124,12 +124,12 @@ class ResNet(nn.Module):
     
 #ResNet18
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
-learnR = 0.1
-epochs = 35 
+lr = 0.01
+epochs = 80 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(net.parameters(), momentum=0.9, lr=learnR, 
+optimizer = torch.optim.SGD(net.parameters(), momentum=0.9, lr=lr, 
                             weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, lr=learnR, 
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, lr, 
                                                 epochs=epochs, 
                                                 steps_per_epoch=len(trainloader))
 best_acc = 0
