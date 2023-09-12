@@ -124,7 +124,7 @@ class ResNet(nn.Module):
     
 #ResNet18
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
-epochs = 20
+epochs = 90
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.1,
                       momentum=0.9, weight_decay=5e-4)
