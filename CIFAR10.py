@@ -122,9 +122,9 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
     
-#ResNet50
+#ResNet18
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
-epochs = 10
+epochs = 20
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.1,
                       momentum=0.9, weight_decay=5e-4)
@@ -143,8 +143,6 @@ for epoch in range(epochs):
         optimizer.step()
     correct = 0
     total = 0
-    class_correct = [0] * 10
-    class_total = [0] * 10
     with torch.no_grad():
         for data in val_loader:
             images, labels = data
@@ -153,16 +151,7 @@ for epoch in range(epochs):
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
-            c = (predicted == labels).squeeze()
-            for i in range(len(labels)):
-                label = labels[i]
-                class_correct[label] += c[i].item()
-                class_total[label] += 1
-                correct += (predicted == labels).sum().item()
-    # Calculate and print accuracy for each class
-    for i in range(10):
-        accuracy = 100 * class_correct[i] / class_total[i]
-        print(f"Accuracy for Class {i}: {accuracy:.2f}%")
+            correct += (predicted == labels).sum().item()
              
     print(f'Accuracy of the network on epoch {epoch + 1}: {100 * correct // total} % in {time.time() - epochtime} seconds')        
     scheduler.step(metrics=100 * correct // total)
@@ -170,8 +159,6 @@ for epoch in range(epochs):
 print('Finished Training epoch ', epoch + 1)
 correct = 0
 total = 0
-class_correct = [0] * 10
-class_total = [0] * 10
 with torch.no_grad():
     for data in testloader:
         images, labels = data
@@ -181,15 +168,6 @@ with torch.no_grad():
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
-        for i in range(len(labels)):
-                label = labels[i]
-                class_correct[label] += c[i].item()
-                class_total[label] += 1
-                correct += (predicted == labels).sum().item()
-    # Calculate and print accuracy for each class
-    for i in range(10):
-        accuracy = 100 * class_correct[i] / class_total[i]
-        print(f"Accuracy for Class {i}: {accuracy:.2f}%")
 print(correct,total)
 print(f'Accuracy of the network on the {total} test images: {100 * correct // total} %')
 print("--- %s seconds ---" % (time.time() - start_time))
