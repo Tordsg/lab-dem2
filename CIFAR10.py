@@ -9,7 +9,6 @@ import time
 start_time = time.time()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
-
 transform_trainingset = transforms.Compose([transforms.ToTensor(),
                                             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
                                             transforms.RandomHorizontalFlip(),
@@ -124,12 +123,13 @@ class ResNet(nn.Module):
     
 #ResNet18
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
-epochs = 90
+epochs = 90 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(net.parameters(), lr=0.1,
-                      momentum=0.9, weight_decay=5e-4)
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.1, patience = 3, threshold = 0.001, mode = 'max', verbose = True)
-#Training the Network
+optimizer = torch.optim.SGD(net.parameters(), momentum=0.9, lr=0.1, 
+                            weight_decay=5e-4)
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, 0.1, 
+                                                epochs=epochs, 
+                                                steps_per_epoch=len(trainloader))#Training the Network
 for epoch in range(epochs):  
     epochtime = time.time()
     for i, data in enumerate(trainloader, 0):
@@ -155,7 +155,7 @@ for epoch in range(epochs):
              
     print(f'Accuracy of the network on epoch {epoch + 1}: {100 * correct // total} % in {time.time() - epochtime} seconds')        
     scheduler.step(metrics=100 * correct // total)
-    
+torch.save(net, 'net.pth')
 print('Finished Training epoch ', epoch + 1)
 correct = 0
 total = 0
