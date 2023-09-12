@@ -1,3 +1,4 @@
+import os
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -123,14 +124,15 @@ class ResNet(nn.Module):
     
 #ResNet18
 net = ResNet(BasicBlock, [2,2,2,2]).to(device)
-epochs = 90 
+epochs = 10 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), momentum=0.9, lr=0.1, 
                             weight_decay=5e-4)
 scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, 0.1, 
                                                 epochs=epochs, 
-                                                steps_per_epoch=len(trainloader))#Training the Network
+                                                steps_per_epoch=len(trainloader))
 for epoch in range(epochs):  
+    net.train()
     epochtime = time.time()
     for i, data in enumerate(trainloader, 0):
         inputs, labels = data
@@ -144,6 +146,7 @@ for epoch in range(epochs):
     correct = 0
     total = 0
     with torch.no_grad():
+        net.eval()
         for data in val_loader:
             images, labels = data
             images = images.to(device)
@@ -152,14 +155,26 @@ for epoch in range(epochs):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-             
+    acc = 100.*correct/total
+    if acc > best_acc:
+        print('Saving..')
+        state = {
+            'net': net.state_dict(),
+            'acc': acc,
+            'epoch': epoch,
+        }
+        if not os.path.isdir('checkpoint'):
+            os.mkdir('checkpoint')
+        torch.save(state, './checkpoint/ckpt.pth')
+        best_acc = acc   
+              
     print(f'Accuracy of the network on epoch {epoch + 1}: {100 * correct // total} % in {time.time() - epochtime} seconds')        
     scheduler.step()
-torch.save(net, 'net.pth')
 print('Finished Training epoch ', epoch + 1)
 correct = 0
 total = 0
 with torch.no_grad():
+    net.eval()
     for data in testloader:
         images, labels = data
         images = images.to(device)
